@@ -51,7 +51,7 @@ export default function HomePage() {
 
       setTimeout(() => {
         isScrolling.current = false;
-      }, 100);
+      }, 500);
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
