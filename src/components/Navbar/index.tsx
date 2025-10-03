@@ -251,7 +251,7 @@ const Header = () => {
           )}
 
           <div className="flex items-center space-x-4">
-            <ThemeToggle />
+            {/* <ThemeToggle /> */}
 
             {isAuthenticated ? (
               <div className="relative">
@@ -397,7 +397,7 @@ const Header = () => {
             )}
 
             <div className="flex flex-col items-center space-y-4 pt-4">
-              <ThemeToggle />
+              {/* <ThemeToggle /> */}
 
               {isAuthenticated ? (
                 <div className="flex flex-col items-center space-y-4 w-full max-w-xs">
