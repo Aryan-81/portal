@@ -11,7 +11,7 @@ import LiquidEther from "../animations/LiquidEther/LiquidEther";
 import { useTheme } from "next-themes";
 import HistorySection from "./HistorySection";
 import EventsSection from "./EventSection";
-import {homeAboutData as aboutData} from "@/data/data"
+import { homeAboutData as aboutData } from "@/data/data";
 
 const scrollToSection = (id: string) => {
   const el = document.getElementById(id);
