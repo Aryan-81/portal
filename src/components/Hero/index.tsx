@@ -11,7 +11,12 @@ import LiquidEther from "../animations/LiquidEther/LiquidEther";
 import { useTheme } from "next-themes";
 import HistorySection from "./HistorySection";
 import EventsSection from "./EventSection";
+<<<<<<< HEAD
 import { useContent } from "@/context/ContentContext";
+=======
+import { homeAboutData as aboutData } from "@/data/data";
+
+>>>>>>> a691d18d7d39259a72bdbf2590b46a9fb4f4f1c2
 const scrollToSection = (id: string) => {
   const el = document.getElementById(id);
   if (el) {
@@ -51,7 +56,7 @@ export default function HomePage() {
 
       setTimeout(() => {
         isScrolling.current = false;
-      }, 100);
+      }, 500);
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -304,6 +309,7 @@ export const HeroSection = () => {
 const AboutSection = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+<<<<<<< HEAD
   const { content, loading, error } = useContent();
 
   // Loading state
@@ -374,6 +380,8 @@ const AboutSection = () => {
       }
     ]
   };
+=======
+>>>>>>> a691d18d7d39259a72bdbf2590b46a9fb4f4f1c2
 
   // Theme-based styles
   const sectionBg = isDark

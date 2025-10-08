@@ -38,8 +38,9 @@ import remarkGfm from "remark-gfm";
 
 interface CostDiscount {
   plan: string;
-  cost: number;
-  discount: number;
+  cost: number; // Original price
+  discount: number; // Discount percentage
+  finalPrice?: number; // Calculated price after discount
   description?: string;
 }
 
@@ -124,18 +125,19 @@ const ServicesPage: React.FC = () => {
       // If it's already an array, return it
       if (Array.isArray(costDiscount)) {
         console.log("Cost discount is already array:", costDiscount);
-        return costDiscount.map((plan) => ({
-          plan: plan.plan || "Standard",
-          cost:
-            typeof plan.cost === "string"
-              ? parseFloat(plan.cost)
-              : plan.cost || 0,
-          discount:
-            typeof plan.discount === "string"
-              ? parseFloat(plan.discount)
-              : plan.discount || 0,
-          description: plan.description,
-        }));
+        return costDiscount.map((plan) => {
+          const originalCost = typeof plan.cost === 'string' ? parseFloat(plan.cost) : plan.cost || 0;
+          const discount = typeof plan.discount === 'string' ? parseFloat(plan.discount) : plan.discount || 0;
+          const finalPrice = discount > 0 ? originalCost * (1 - discount / 100) : originalCost;
+          
+          return {
+            plan: plan.plan || "Standard",
+            cost: originalCost,        // Original price
+            discount: discount,        // Discount percentage
+            finalPrice: finalPrice,    // Price after discount
+            description: plan.description,
+          };
+        });
       }
 
       // If it's a string, parse it as JSON
@@ -148,18 +150,19 @@ const ServicesPage: React.FC = () => {
         const parsed = JSON.parse(cleanString);
         console.log("Parsed cost_discount:", parsed);
         return Array.isArray(parsed)
-          ? parsed.map((plan) => ({
-              plan: plan.plan || "Standard",
-              cost:
-                typeof plan.cost === "string"
-                  ? parseFloat(plan.cost)
-                  : plan.cost || 0,
-              discount:
-                typeof plan.discount === "string"
-                  ? parseFloat(plan.discount)
-                  : plan.discount || 0,
-              description: plan.description,
-            }))
+          ? parsed.map((plan) => {
+              const originalCost = typeof plan.cost === 'string' ? parseFloat(plan.cost) : plan.cost || 0;
+              const discount = typeof plan.discount === 'string' ? parseFloat(plan.discount) : plan.discount || 0;
+              const finalPrice = discount > 0 ? originalCost * (1 - discount / 100) : originalCost;
+              
+              return {
+                plan: plan.plan || "Standard",
+                cost: originalCost,
+                discount: discount,
+                finalPrice: finalPrice,
+                description: plan.description,
+              };
+            })
           : [];
       }
 
@@ -221,7 +224,7 @@ const ServicesPage: React.FC = () => {
     }`;
   };
 
-  // Safe handler for pricing display
+  // Safe handler for pricing display - shows FINAL price after discount
   const getStartingPrice = (service: Service): string => {
     const discounts = getCostDiscounts(service);
     console.log(
@@ -234,8 +237,9 @@ const ServicesPage: React.FC = () => {
     if (discounts.length === 0) return "Contact for pricing";
 
     const firstPlan = discounts[0];
-    const cost = firstPlan.cost || 0;
-    return `Starting at ₹${cost}`;
+    // Show the FINAL price (after discount) as starting price
+    const finalPrice = firstPlan.finalPrice || firstPlan.cost;
+    return `Starting at ₹${Math.round(finalPrice)}`;
   };
 
   // Safe handler for discount display
@@ -718,10 +722,9 @@ const ServicesPage: React.FC = () => {
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {getCostDiscounts(selectedService).map((plan, index) => {
-                        const cost = plan.cost || 0;
+                        const originalCost = plan.cost || 0;
                         const discount = plan.discount || 0;
-                        const originalPrice =
-                          discount > 0 ? cost / (1 - discount / 100) : cost;
+                        const finalPrice = plan.finalPrice || originalCost;
 
                         return (
                           <div
@@ -749,19 +752,19 @@ const ServicesPage: React.FC = () => {
                                   )}
                                 </div>
 
-                                {/* Pricing */}
+                                {/* Pricing - UPDATED */}
                                 <div className="mb-4">
                                   {discount > 0 && (
                                     <div className="flex items-center gap-2 mb-1">
                                       <span className="text-sm line-through text-gray-500 dark:text-gray-400">
-                                        ₹{Math.round(originalPrice)}
+                                        ₹{Math.round(originalCost)}
                                       </span>
                                     </div>
                                   )}
                                   <div className="flex items-center gap-1">
                                     <IndianRupee className="w-5 h-5 text-green-600" />
                                     <span className="text-3xl font-bold text-gray-900 dark:text-white">
-                                      {Math.round(cost)}
+                                      {Math.round(finalPrice)}
                                     </span>
                                   </div>
                                 </div>
@@ -884,7 +887,7 @@ const ServicesPage: React.FC = () => {
                 </Alert>
               )}
 
-              {/* Selected Plan Display */}
+              {/* Selected Plan Display - UPDATED */}
               {bookingFormData.selectedPlan ? (
                 <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                   <h4 className="font-semibold text-blue-800 dark:text-blue-200 mb-2">
@@ -895,20 +898,17 @@ const ServicesPage: React.FC = () => {
                       <p className="font-medium">
                         {bookingFormData.selectedPlan.plan}
                       </p>
-                      <p className="text-sm text-blue-600 dark:text-blue-300">
-                        ₹{Math.round(bookingFormData.selectedPlan.cost || 0)}
+                      <div className="text-sm text-blue-600 dark:text-blue-300">
+                        {/* Show final price after discount */}
+                        <span className="font-semibold">
+                          ₹{Math.round(bookingFormData.selectedPlan.finalPrice || bookingFormData.selectedPlan.cost)}
+                        </span>
                         {bookingFormData.selectedPlan.discount > 0 && (
                           <span className="ml-2 line-through text-blue-400">
-                            ₹
-                            {Math.round(
-                              (bookingFormData.selectedPlan.cost || 0) /
-                                (1 -
-                                  (bookingFormData.selectedPlan.discount || 0) /
-                                    100)
-                            )}
+                            ₹{Math.round(bookingFormData.selectedPlan.cost)}
                           </span>
                         )}
-                      </p>
+                      </div>
                     </div>
                     {(bookingFormData.selectedPlan.discount || 0) > 0 && (
                       <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">

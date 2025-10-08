@@ -5,23 +5,29 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/api";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { 
-  CalendarIcon, 
-  ClockIcon, 
-  MapPinIcon, 
-  UserIcon, 
-  UsersIcon, 
-  SearchIcon, 
-  FilterIcon, 
-  ChevronLeftIcon, 
-  ChevronRightIcon, 
+import {
+  CalendarIcon,
+  ClockIcon,
+  MapPinIcon,
+  UserIcon,
+  UsersIcon,
+  SearchIcon,
+  FilterIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
   ArrowRightIcon,
   XIcon,
   MenuIcon,
-  CheckCircle
+  CheckCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -31,7 +37,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 type Event = {
   id: number;
@@ -59,13 +71,15 @@ export default function EventsListPage() {
   const router = useRouter();
   const { isAuthenticated, user } = useAuth();
   const [events, setEvents] = useState<Event[]>([]);
-  const [eventParticipations, setEventParticipations] = useState<Record<number, EventParticipation>>({});
+  const [eventParticipations, setEventParticipations] = useState<
+    Record<number, EventParticipation>
+  >({});
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<EventFilters>({
     search: "",
     status: "all",
     sort: "newest",
-    location: ""
+    location: "",
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [eventsPerPage] = useState(6);
@@ -97,17 +111,19 @@ export default function EventsListPage() {
 
   const checkEventParticipations = async (eventsData: Event[]) => {
     const participationMap: Record<number, EventParticipation> = {};
-    
+
     for (const event of eventsData) {
       try {
-        const participationResponse = await api.get<EventParticipation>(`/events/events/${event.id}/participants/me/`);
+        const participationResponse = await api.get<EventParticipation>(
+          `/events/events/${event.id}/participants/me/`
+        );
         participationMap[event.id] = participationResponse.data;
       } catch (error) {
         // If endpoint returns 404 or error, user is not participating
         participationMap[event.id] = { is_participating: false };
       }
     }
-    
+
     setEventParticipations(participationMap);
   };
 
@@ -126,73 +142,83 @@ export default function EventsListPage() {
   };
 
   // Filter and sort events with proper error handling
-  const filteredEvents = events.filter(event => {
-    if (!event) return false;
+  const filteredEvents = events
+    .filter((event) => {
+      if (!event) return false;
 
-    const safeTitle = getSafeString(event.name);
-    const safeDescription = getSafeString(event.description);
-    const safeLocation = getSafeString(event.location);
-    const safeSearch = getSafeString(filters.search);
+      const safeTitle = getSafeString(event.name);
+      const safeDescription = getSafeString(event.description);
+      const safeLocation = getSafeString(event.location);
+      const safeSearch = getSafeString(filters.search);
 
-    const matchesSearch = safeTitle.includes(safeSearch) ||
-                         safeDescription.includes(safeSearch);
-    
-    const matchesLocation = filters.location === "" || 
-                           safeLocation.includes(getSafeString(filters.location));
-    
-    const now = new Date();
-    const eventDate = getSafeDate(event.date);
-    const regEndDate = getSafeDate(event.reg_end_date);
+      const matchesSearch =
+        safeTitle.includes(safeSearch) || safeDescription.includes(safeSearch);
 
-    // Skip events with invalid dates
-    if (isNaN(eventDate.getTime()) || isNaN(regEndDate.getTime())) {
-      return false;
-    }
+      const matchesLocation =
+        filters.location === "" ||
+        safeLocation.includes(getSafeString(filters.location));
 
-    const matchesStatus = (() => {
-      switch (filters.status) {
-        case "upcoming":
-          return eventDate > now;
-        case "ongoing":
-          // For simplicity, considering events as ongoing on their date
-          const isSameDay = eventDate.toDateString() === now.toDateString();
-          return isSameDay || (eventDate <= now && regEndDate >= now);
-        case "past":
-          return eventDate < now;
-        case "registration-open":
-          return regEndDate >= now;
-        default:
-          return true;
+      const now = new Date();
+      const eventDate = getSafeDate(event.date);
+      const regEndDate = getSafeDate(event.reg_end_date);
+
+      // Skip events with invalid dates
+      if (isNaN(eventDate.getTime()) || isNaN(regEndDate.getTime())) {
+        return false;
       }
-    })();
 
-    return matchesSearch && matchesStatus && matchesLocation;
-  }).sort((a, b) => {
-    if (!a || !b) return 0;
+      const matchesStatus = (() => {
+        switch (filters.status) {
+          case "upcoming":
+            return eventDate > now;
+          case "ongoing":
+            // For simplicity, considering events as ongoing on their date
+            const isSameDay = eventDate.toDateString() === now.toDateString();
+            return isSameDay || (eventDate <= now && regEndDate >= now);
+          case "past":
+            return eventDate < now;
+          case "registration-open":
+            return regEndDate >= now;
+          default:
+            return true;
+        }
+      })();
 
-    const dateA = getSafeDate(a.date);
-    const dateB = getSafeDate(b.date);
-    const participantsA = Array.isArray(a.participants) ? a.participants.length : 0;
-    const participantsB = Array.isArray(b.participants) ? b.participants.length : 0;
-    const titleA = getSafeString(a.name);
-    const titleB = getSafeString(b.name);
+      return matchesSearch && matchesStatus && matchesLocation;
+    })
+    .sort((a, b) => {
+      if (!a || !b) return 0;
 
-    switch (filters.sort) {
-      case "oldest":
-        return dateA.getTime() - dateB.getTime();
-      case "name":
-        return titleA.localeCompare(titleB);
-      case "participants":
-        return participantsB - participantsA;
-      default: // newest
-        return dateB.getTime() - dateA.getTime();
-    }
-  });
+      const dateA = getSafeDate(a.date);
+      const dateB = getSafeDate(b.date);
+      const participantsA = Array.isArray(a.participants)
+        ? a.participants.length
+        : 0;
+      const participantsB = Array.isArray(b.participants)
+        ? b.participants.length
+        : 0;
+      const titleA = getSafeString(a.name);
+      const titleB = getSafeString(b.name);
+
+      switch (filters.sort) {
+        case "oldest":
+          return dateA.getTime() - dateB.getTime();
+        case "name":
+          return titleA.localeCompare(titleB);
+        case "participants":
+          return participantsB - participantsA;
+        default: // newest
+          return dateB.getTime() - dateA.getTime();
+      }
+    });
 
   // Pagination logic
   const indexOfLastEvent = currentPage * eventsPerPage;
   const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
-  const currentEvents = filteredEvents.slice(indexOfFirstEvent, indexOfLastEvent);
+  const currentEvents = filteredEvents.slice(
+    indexOfFirstEvent,
+    indexOfLastEvent
+  );
   const totalPages = Math.ceil(filteredEvents.length / eventsPerPage);
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
@@ -209,10 +235,10 @@ export default function EventsListPage() {
     }
 
     if (eventDate < now) return "past";
-    
+
     const isSameDay = eventDate.toDateString() === now.toDateString();
     if (isSameDay || (eventDate <= now && regEndDate >= now)) return "ongoing";
-    
+
     if (regEndDate < now) return "registration-closed";
     return "upcoming";
   };
@@ -220,14 +246,29 @@ export default function EventsListPage() {
   const getStatusBadge = (event: Event) => {
     const status = getEventStatus(event);
     const variants = {
-      upcoming: { label: "Upcoming", color: "bg-blue-100 text-blue-800 border-blue-200" },
-      ongoing: { label: "Happening Now", color: "bg-green-100 text-green-800 border-green-200" },
-      past: { label: "Completed", color: "bg-gray-100 text-gray-800 border-gray-200" },
-      "registration-closed": { label: "Registration Closed", color: "bg-orange-100 text-orange-800 border-orange-200" }
+      upcoming: {
+        label: "Upcoming",
+        color: "bg-blue-100 text-blue-800 border-blue-200",
+      },
+      ongoing: {
+        label: "Happening Now",
+        color: "bg-green-100 text-green-800 border-green-200",
+      },
+      past: {
+        label: "Completed",
+        color: "bg-gray-100 text-gray-800 border-gray-200",
+      },
+      "registration-closed": {
+        label: "Registration Closed",
+        color: "bg-orange-100 text-orange-800 border-orange-200",
+      },
     };
 
     return (
-      <Badge variant="outline" className={`text-xs ${variants[status]?.color || variants.past.color}`}>
+      <Badge
+        variant="outline"
+        className={`text-xs ${variants[status]?.color || variants.past.color}`}
+      >
         {variants[status]?.label || "Completed"}
       </Badge>
     );
@@ -244,10 +285,10 @@ export default function EventsListPage() {
 
   const formatDate = (dateString: string) => {
     try {
-      return new Date(dateString).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
+      return new Date(dateString).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
       });
     } catch {
       return "Invalid Date";
@@ -256,9 +297,9 @@ export default function EventsListPage() {
 
   const formatTime = (dateString: string) => {
     try {
-      return new Date(dateString).toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit'
+      return new Date(dateString).toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
       });
     } catch {
       return "Invalid Time";
@@ -270,7 +311,7 @@ export default function EventsListPage() {
   };
 
   const getSafeAdminName = (event: Event) => {
-    return event?.admin?.username || "Unknown Organizer";
+    return String(event?.admin) || "Unknown Organizer";
   };
 
   const getSafeLocation = (event: Event) => {
@@ -385,32 +426,38 @@ export default function EventsListPage() {
           <h4 className="text-sm font-medium">Event Statistics</h4>
           <div className="grid grid-cols-2 gap-2">
             <div className="text-center p-2 bg-muted/50 rounded">
-              <div className="text-lg font-bold text-primary">{events.length}</div>
+              <div className="text-lg font-bold text-primary">
+                {events.length}
+              </div>
               <div className="text-xs text-muted-foreground">Total Events</div>
             </div>
             <div className="text-center p-2 bg-muted/50 rounded">
               <div className="text-lg font-bold text-blue-600">
-                {events.filter(e => getEventStatus(e) === 'upcoming').length}
+                {events.filter((e) => getEventStatus(e) === "upcoming").length}
               </div>
               <div className="text-xs text-muted-foreground">Upcoming</div>
             </div>
             <div className="text-center p-2 bg-muted/50 rounded">
               <div className="text-lg font-bold text-green-600">
-                {events.filter(e => getEventStatus(e) === 'ongoing').length}
+                {events.filter((e) => getEventStatus(e) === "ongoing").length}
               </div>
               <div className="text-xs text-muted-foreground">Happening Now</div>
             </div>
             <div className="text-center p-2 bg-muted/50 rounded">
               <div className="text-lg font-bold text-orange-600">
-                {events.filter(e => {
-                  try {
-                    return new Date(e.reg_end_date) >= new Date();
-                  } catch {
-                    return false;
-                  }
-                }).length}
+                {
+                  events.filter((e) => {
+                    try {
+                      return new Date(e.reg_end_date) >= new Date();
+                    } catch {
+                      return false;
+                    }
+                  }).length
+                }
               </div>
-              <div className="text-xs text-muted-foreground">Registration Open</div>
+              <div className="text-xs text-muted-foreground">
+                Registration Open
+              </div>
             </div>
           </div>
         </div>
@@ -418,12 +465,17 @@ export default function EventsListPage() {
 
       {/* Clear Filters */}
       {(filters.search || filters.status !== "all" || filters.location) && (
-        <Button 
-          variant="outline" 
-          size="sm" 
+        <Button
+          variant="outline"
+          size="sm"
           className="w-full mt-2"
           onClick={() => {
-            setFilters({ search: "", status: "all", sort: "newest", location: "" });
+            setFilters({
+              search: "",
+              status: "all",
+              sort: "newest",
+              location: "",
+            });
             setCurrentPage(1);
           }}
         >
@@ -455,25 +507,34 @@ export default function EventsListPage() {
             Upcoming Events
           </h1>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Discover and join amazing events in your community. Register now to secure your spot!
+            Discover and join amazing events in your community. Register now to
+            secure your spot!
           </p>
         </div>
 
         {/* Mobile Filter Button */}
         <div className="lg:hidden mb-6">
-          <Sheet open={isMobileFiltersOpen} onOpenChange={setIsMobileFiltersOpen}>
+          <Sheet
+            open={isMobileFiltersOpen}
+            onOpenChange={setIsMobileFiltersOpen}
+          >
             <SheetTrigger asChild>
               <Button variant="outline" className="w-full justify-start gap-2">
                 <FilterIcon className="h-4 w-4" />
                 Filters & Search
-                {(filters.search || filters.status !== "all" || filters.location) && (
+                {(filters.search ||
+                  filters.status !== "all" ||
+                  filters.location) && (
                   <Badge variant="secondary" className="ml-auto">
                     Active
                   </Badge>
                 )}
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-[85vw] sm:w-[400px] overflow-y-auto px-4">
+            <SheetContent
+              side="left"
+              className="w-[85vw] sm:w-[400px] overflow-y-auto px-4"
+            >
               <SheetHeader className="text-left">
                 <SheetTitle className="flex items-center gap-2">
                   <FilterIcon className="h-5 w-5" />
@@ -511,40 +572,60 @@ export default function EventsListPage() {
             {/* Active Filters Display - Mobile */}
             <div className="lg:hidden mb-6">
               <div className="flex flex-wrap gap-2 items-center">
-                <span className="text-sm text-muted-foreground">Active filters:</span>
+                <span className="text-sm text-muted-foreground">
+                  Active filters:
+                </span>
                 {filters.search && (
-                  <Badge variant="secondary" className="flex items-center gap-1">
+                  <Badge
+                    variant="secondary"
+                    className="flex items-center gap-1"
+                  >
                     Search: {filters.search}
-                    <XIcon 
-                      className="h-3 w-3 cursor-pointer" 
+                    <XIcon
+                      className="h-3 w-3 cursor-pointer"
                       onClick={() => setFilters({ ...filters, search: "" })}
                     />
                   </Badge>
                 )}
                 {filters.status !== "all" && (
-                  <Badge variant="secondary" className="flex items-center gap-1">
+                  <Badge
+                    variant="secondary"
+                    className="flex items-center gap-1"
+                  >
                     Status: {filters.status}
-                    <XIcon 
-                      className="h-3 w-3 cursor-pointer" 
+                    <XIcon
+                      className="h-3 w-3 cursor-pointer"
                       onClick={() => setFilters({ ...filters, status: "all" })}
                     />
                   </Badge>
                 )}
                 {filters.location && (
-                  <Badge variant="secondary" className="flex items-center gap-1">
+                  <Badge
+                    variant="secondary"
+                    className="flex items-center gap-1"
+                  >
                     Location: {filters.location}
-                    <XIcon 
-                      className="h-3 w-3 cursor-pointer" 
+                    <XIcon
+                      className="h-3 w-3 cursor-pointer"
                       onClick={() => setFilters({ ...filters, location: "" })}
                     />
                   </Badge>
                 )}
-                {(filters.search || filters.status !== "all" || filters.location) && (
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
+                {(filters.search ||
+                  filters.status !== "all" ||
+                  filters.location) && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     className="h-6 text-xs"
-                    onClick={() => setFilters({ search: "", status: "all", sort: "newest", location: "" })}
+                    onClick={() =>
+                      setFilters({
+                        search: "",
+                        status: "all",
+                        sort: "newest",
+                        location: "",
+                      })
+                    }
                   >
                     Clear All
                   </Button>
@@ -559,17 +640,29 @@ export default function EventsListPage() {
                   <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
                     <CalendarIcon className="h-8 w-8 text-muted-foreground" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">No events found</h3>
+                  <h3 className="text-xl font-semibold mb-2">
+                    No events found
+                  </h3>
                   <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                    {filters.search || filters.status !== "all" || filters.location
-                      ? "No events match your current filters. Try adjusting your search criteria." 
-                      : "There are no events available at the moment. Please check back later!"
-                    }
+                    {filters.search ||
+                    filters.status !== "all" ||
+                    filters.location
+                      ? "No events match your current filters. Try adjusting your search criteria."
+                      : "There are no events available at the moment. Please check back later!"}
                   </p>
-                  {(filters.search || filters.status !== "all" || filters.location) ? (
-                    <Button 
-                      variant="default" 
-                      onClick={() => setFilters({ search: "", status: "all", sort: "newest", location: "" })}
+                  {filters.search ||
+                  filters.status !== "all" ||
+                  filters.location ? (
+                    <Button
+                      variant="default"
+                      onClick={() =>
+                        setFilters({
+                          search: "",
+                          status: "all",
+                          sort: "newest",
+                          location: "",
+                        })
+                      }
                     >
                       Clear Filters
                     </Button>
@@ -590,8 +683,8 @@ export default function EventsListPage() {
                     const registrationOpen = canRegister(event);
 
                     return (
-                      <Card 
-                        key={event.id} 
+                      <Card
+                        key={event.id}
                         className="cursor-pointer transition-all hover:shadow-lg hover:border-primary/30 group border-2"
                         onClick={() => handleEventClick(event.id)}
                       >
@@ -610,21 +703,27 @@ export default function EventsListPage() {
                             {event.description || "No description available."}
                           </CardDescription>
                         </CardHeader>
-                        
+
                         <CardContent className="pt-0">
                           {/* Event Details */}
                           <div className="space-y-3 mb-4">
                             <div className="flex items-center gap-2 text-sm">
                               <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-                              <span className="font-medium">{formatDate(event.date)}</span>
-                              <span className="text-muted-foreground">at {formatTime(event.date)}</span>
+                              <span className="font-medium">
+                                {formatDate(event.date)}
+                              </span>
+                              <span className="text-muted-foreground">
+                                at {formatTime(event.date)}
+                              </span>
                             </div>
-                            
+
                             <div className="flex items-center gap-2 text-sm">
                               <MapPinIcon className="h-4 w-4 text-muted-foreground" />
-                              <span className="text-muted-foreground">{getSafeLocation(event)}</span>
+                              <span className="text-muted-foreground">
+                                {getSafeLocation(event)}
+                              </span>
                             </div>
-                            
+
                             <div className="flex items-center gap-2 text-sm">
                               <ClockIcon className="h-4 w-4 text-muted-foreground" />
                               <span className="text-muted-foreground">
@@ -637,32 +736,42 @@ export default function EventsListPage() {
                           <div className="flex items-center justify-between pt-4 border-t">
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
                               <UserIcon className="h-4 w-4" />
-                              <span className="truncate">By {getSafeAdminName(event)}</span>
+                              <span className="truncate">
+                                By {getSafeAdminName(event)}
+                              </span>
                             </div>
-                            
+
                             <div className="flex items-center gap-2">
                               {userRegistered ? (
-                                <Badge variant="default" className="bg-green-100 text-green-800 hover:bg-green-100">
+                                <Badge
+                                  variant="default"
+                                  className="bg-green-100 text-green-800 hover:bg-green-100"
+                                >
                                   <CheckCircle className="h-3 w-3 mr-1" />
                                   Registered
                                 </Badge>
                               ) : registrationOpen ? (
-                                <Button 
+                                <Button
                                   size="sm"
-                                  onClick={(e) => handleRegisterClick(event.id, e)}
+                                  onClick={(e) =>
+                                    handleRegisterClick(event.id, e)
+                                  }
                                   className="bg-primary hover:bg-primary/90"
                                 >
                                   Register Now
                                 </Button>
                               ) : (
-                                <Badge variant="outline" className="text-orange-600">
+                                <Badge
+                                  variant="outline"
+                                  className="text-orange-600"
+                                >
                                   Registration Closed
                                 </Badge>
                               )}
-                              
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
+
+                              <Button
+                                variant="ghost"
+                                size="sm"
                                 className="h-8 gap-1 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
                               >
                                 Details
@@ -680,9 +789,11 @@ export default function EventsListPage() {
                 {totalPages > 1 && (
                   <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-8">
                     <div className="text-sm text-muted-foreground">
-                      Showing {indexOfFirstEvent + 1}-{Math.min(indexOfLastEvent, filteredEvents.length)} of {filteredEvents.length} events
+                      Showing {indexOfFirstEvent + 1}-
+                      {Math.min(indexOfLastEvent, filteredEvents.length)} of{" "}
+                      {filteredEvents.length} events
                     </div>
-                    
+
                     <div className="flex items-center gap-2">
                       <Button
                         variant="outline"
@@ -693,38 +804,47 @@ export default function EventsListPage() {
                         <ChevronLeftIcon className="h-4 w-4" />
                         Previous
                       </Button>
-                      
-                      <div className="flex items-center gap-1">
-                        {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                          let pageNum;
-                          if (totalPages <= 5) {
-                            pageNum = i + 1;
-                          } else if (currentPage <= 3) {
-                            pageNum = i + 1;
-                          } else if (currentPage >= totalPages - 2) {
-                            pageNum = totalPages - 4 + i;
-                          } else {
-                            pageNum = currentPage - 2 + i;
-                          }
 
-                          return (
-                            <Button
-                              key={pageNum}
-                              variant={currentPage === pageNum ? "default" : "outline"}
-                              size="sm"
-                              className="w-8 h-8 p-0"
-                              onClick={() => paginate(pageNum)}
-                            >
-                              {pageNum}
-                            </Button>
-                          );
-                        })}
+                      <div className="flex items-center gap-1">
+                        {Array.from(
+                          { length: Math.min(5, totalPages) },
+                          (_, i) => {
+                            let pageNum;
+                            if (totalPages <= 5) {
+                              pageNum = i + 1;
+                            } else if (currentPage <= 3) {
+                              pageNum = i + 1;
+                            } else if (currentPage >= totalPages - 2) {
+                              pageNum = totalPages - 4 + i;
+                            } else {
+                              pageNum = currentPage - 2 + i;
+                            }
+
+                            return (
+                              <Button
+                                key={pageNum}
+                                variant={
+                                  currentPage === pageNum
+                                    ? "default"
+                                    : "outline"
+                                }
+                                size="sm"
+                                className="w-8 h-8 p-0"
+                                onClick={() => paginate(pageNum)}
+                              >
+                                {pageNum}
+                              </Button>
+                            );
+                          }
+                        )}
                       </div>
-                      
+
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => paginate(Math.min(totalPages, currentPage + 1))}
+                        onClick={() =>
+                          paginate(Math.min(totalPages, currentPage + 1))
+                        }
                         disabled={currentPage === totalPages}
                       >
                         Next
