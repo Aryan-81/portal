@@ -1,5 +1,6 @@
-// Header.tsx
+// Header.tsx - Enhanced with shadcn/ui and cleaner code
 "use client";
+
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useIsMobile } from "@/context/IsMobileContext";
@@ -8,36 +9,26 @@ import { useAuth } from "@/context/AuthContext";
 import { ThemeToggle } from "../ThemeToggle";
 import { useTheme } from "next-themes";
 import { User, LogOut, UserCircle, History, Menu, X } from 'lucide-react';
-
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { useContent } from "@/context/ContentContext";
 const Header = () => {
   const { isMobile } = useIsMobile();
+  const { content, loading, error } = useContent();
   const { isTop } = useScroll();
+  const { logout, user, isAuthenticated } = useAuth();
+  const { theme } = useTheme();
+
+  // State management
   const [showNav, setShowNav] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
-  const { logout, user, isAuthenticated } = useAuth();
-  const { theme } = useTheme();
 
-  // Theme-based styling
-  const isDark = theme === "dark";
-
-  // Colors based on theme
-  const headerBgColor = isDark
-    ? "rgba(15, 23, 42, 0.95)"
-    : "rgba(255, 255, 255, 0.98)";
-  const textColor = isDark ? "text-white" : "text-gray-900";
-  const hoverColor = isDark ? "hover:text-cyan-400" : "hover:text-blue-600";
-  const borderColor = isDark ? "border-white/20" : "border-gray-200";
-  const mobileMenuBg = isDark ? "bg-slate-900" : "bg-white";
-  const buttonBg = isDark
-    ? "bg-gradient-to-r from-cyan-500 to-blue-600"
-    : "bg-gradient-to-r from-blue-500 to-purple-600";
-  const buttonText = "text-white";
-  const underlineColor = isDark ? "after:bg-cyan-400" : "after:bg-blue-600";
-  const dropdownBg = isDark ? "bg-slate-800 border-slate-700" : "bg-white border-gray-200";
-  const dropdownItemHover = isDark ? "hover:bg-slate-700" : "hover:bg-gray-100";
-
+  // ===== SCROLL BEHAVIOR =====
   useEffect(() => {
     const handleScrollDirection = () => {
       const currentScroll = window.scrollY;
@@ -56,6 +47,7 @@ const Header = () => {
     return () => window.removeEventListener("scroll", handleScrollDirection);
   }, [lastScrollY, isMenuOpen]);
 
+  // ===== MOBILE MENU MANAGEMENT =====
   useEffect(() => {
     if (!isMobile) {
       setIsMenuOpen(false);
@@ -73,7 +65,7 @@ const Header = () => {
     };
   }, [isMenuOpen]);
 
-  // Close dropdown when clicking outside
+  // ===== DROPDOWN OUTSIDE CLICK =====
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (isUserDropdownOpen) {
@@ -85,6 +77,7 @@ const Header = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isUserDropdownOpen]);
 
+  // ===== EVENT HANDLERS =====
   const handleLinkClick = () => {
     if (isMobile) {
       setIsMenuOpen(false);
@@ -101,21 +94,17 @@ const Header = () => {
 
   const handleProfileClick = () => {
     setIsUserDropdownOpen(false);
-    if (isMobile) {
-      setIsMenuOpen(false);
-    }
+    handleLinkClick();
     window.location.href = '/pages/user/profile';
   };
 
   const handleHistoryClick = () => {
     setIsUserDropdownOpen(false);
-    if (isMobile) {
-      setIsMenuOpen(false);
-    }
+    handleLinkClick();
     window.location.href = '/pages/user/history';
   };
 
-  // Get user's first letter or fallback
+  // ===== USER UTILITIES =====
   const getUserInitial = () => {
     if (user?.first_name) {
       return user.first_name.charAt(0).toUpperCase();
@@ -126,39 +115,50 @@ const Header = () => {
     return "U";
   };
 
+  const getUserDisplayName = () => {
+    if (user?.first_name && user?.last_name) {
+      return `${user.first_name} ${user.last_name}`;
+    }
+    return user?.email || 'User';
+  };
+
+  // ===== NAVIGATION CONFIG =====
+  const navLinks = [
+    { href: "/", label: "Home" },
+    { href: "/pages/about", label: "About" },
+    { href: "/pages/services", label: "Services" },
+    { href: "/pages/events", label: "Events" },
+    { href: "/pages/prototypes", label: "Prototypes" },
+    { href: "/pages/contact", label: "Contact" },
+  ];
+
+  const adminLinks = (user?.is_superuser || user?.is_staff) 
+    ? [{ href: "/pages/admin", label: "Admin" }] 
+    : [];
+
+  const allLinks = [...navLinks, ...adminLinks];
+
   return (
     <motion.header
       initial={{ y: 0 }}
-      animate={{
-        y: showNav || isMenuOpen ? 0 : -100,
-      }}
+      animate={{ y: showNav || isMenuOpen ? 0 : -100 }}
       transition={{ duration: 0.3 }}
-      className={`fixed top-0 left-0 w-full z-50 ${
-        isDark ? 'bg-slate-900/95' : 'bg-white/95'
-      } backdrop-blur-lg border-b ${
-        isDark ? 'border-slate-700' : 'border-gray-200'
-      } shadow-lg`}
-      style={{
-        height: isMobile ? '70px' : '80px'
-      }}
+      className="fixed top-0 left-0 w-full z-50 bg-background/95 backdrop-blur-lg border-b border-border shadow-lg"
+      style={{ height: isMobile ? '70px' : '80px' }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
         {/* Main Header Container */}
         <div className="flex items-center justify-between h-full">
           
-          {/* Logo */}
+          {/* Logo Section */}
           <div className="flex-shrink-0">
-            <a href="/" className="flex items-center space-x-3">
-              <div
-                className={`w-12 h-12 rounded-xl ${
-                  isDark
-                    ? "bg-gradient-to-r from-cyan-500 to-blue-600"
-                    : "bg-gradient-to-r from-blue-500 to-purple-600"
-                } flex items-center justify-center shadow-lg`}
-              >
-                <span className="text-white font-bold text-lg">I²</span>
-              </div>
-              <span className={`font-bold ${isMobile ? 'text-2xl' : 'text-3xl'} ${textColor}`}>
+            <a href="/" className="flex items-center space-x-3 group">
+              {loading ? (
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+              ) : (
+                <img src={content.hero.i2edc_logo} alt="logo" className="w-12 h-12 rounded-lg" />
+              )}
+              <span className="font-bold text-3xl text-foreground">
                 I2EDC
               </span>
             </a>
@@ -167,74 +167,38 @@ const Header = () => {
           {/* Desktop Navigation */}
           {!isMobile && (
             <nav className="flex items-center space-x-8">
-              <a
-                href="/"
-                className={`relative font-semibold text-lg transition-colors duration-300 ${textColor} ${hoverColor} after:absolute after:-bottom-2 after:left-0 after:w-0 after:h-1 ${underlineColor} after:transition-all after:duration-300 hover:after:w-full px-3 py-2`}
-              >
-                Home
-              </a>
-              <a
-                href="/pages/about"
-                className={`relative font-semibold text-lg transition-colors duration-300 ${textColor} ${hoverColor} after:absolute after:-bottom-2 after:left-0 after:w-0 after:h-1 ${underlineColor} after:transition-all after:duration-300 hover:after:w-full px-3 py-2`}
-              >
-                About
-              </a>
-              <a
-                href="/pages/services"
-                className={`relative font-semibold text-lg transition-colors duration-300 ${textColor} ${hoverColor} after:absolute after:-bottom-2 after:left-0 after:w-0 after:h-1 ${underlineColor} after:transition-all after:duration-300 hover:after:w-full px-3 py-2`}
-              >
-                Services
-              </a>
-              <a
-                href="/pages/events"
-                className={`relative font-semibold text-lg transition-colors duration-300 ${textColor} ${hoverColor} after:absolute after:-bottom-2 after:left-0 after:w-0 after:h-1 ${underlineColor} after:transition-all after:duration-300 hover:after:w-full px-3 py-2`}
-              >
-                Events
-              </a>
-              <a
-                href="/pages/prototypes"
-                className={`relative font-semibold text-lg transition-colors duration-300 ${textColor} ${hoverColor} after:absolute after:-bottom-2 after:left-0 after:w-0 after:h-1 ${underlineColor} after:transition-all after:duration-300 hover:after:w-full px-3 py-2`}
-              >
-                Prototypes
-              </a>
-              <a
-                href="/pages/contact"
-                className={`relative font-semibold text-lg transition-colors duration-300 ${textColor} ${hoverColor} after:absolute after:-bottom-2 after:left-0 after:w-0 after:h-1 ${underlineColor} after:transition-all after:duration-300 hover:after:w-full px-3 py-2`}
-              >
-                Contact
-              </a>
-
-              {(user?.is_superuser || user?.is_staff) && (
+              {allLinks.map((link) => (
                 <a
-                  href="/pages/admin"
-                  className={`relative font-semibold text-lg transition-colors duration-300 ${textColor} ${hoverColor} after:absolute after:-bottom-2 after:left-0 after:w-0 after:h-1 ${underlineColor} after:transition-all after:duration-300 hover:after:w-full px-3 py-2`}
+                  key={link.href}
+                  href={link.href}
+                  className="relative font-semibold text-lg transition-colors duration-300 text-foreground hover:text-primary after:absolute after:-bottom-2 after:left-0 after:w-0 after:h-1 after:bg-primary after:transition-all after:duration-300 hover:after:w-full px-3 py-2"
                 >
-                  Admin
+                  {link.label}
                 </a>
-              )}
+              ))}
             </nav>
           )}
 
           {/* Right Side Actions */}
           <div className="flex items-center space-x-4">
-            {/* <ThemeToggle /> */}
+            <ThemeToggle />
 
             {!isMobile && (
               <>
                 {isAuthenticated ? (
                   <div className="relative">
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
-                      className={`flex items-center justify-center w-12 h-12 rounded-full ${
-                        isDark
-                          ? "bg-cyan-500 hover:bg-cyan-600"
-                          : "bg-blue-500 hover:bg-blue-600"
-                      } text-white font-bold text-lg transition-all duration-300 hover:shadow-lg cursor-pointer border-2 ${
-                        isDark ? "border-cyan-400" : "border-blue-400"
-                      }`}
+                      className="w-12 h-12 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 hover:shadow-lg cursor-pointer border-2 border-primary/50"
                     >
-                      {getUserInitial()}
-                    </button>
+                      <Avatar className="w-10 h-10">
+                        <AvatarFallback className="bg-primary text-primary-foreground">
+                          {getUserInitial()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Button>
 
                     {/* User Dropdown */}
                     <AnimatePresence>
@@ -244,80 +208,75 @@ const Header = () => {
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: 10, scale: 0.95 }}
                           transition={{ duration: 0.2 }}
-                          className={`absolute right-0 top-full mt-2 w-64 rounded-xl shadow-2xl border-2 ${dropdownBg} py-3 z-50`}
+                          className="absolute right-0 top-full mt-2 w-64 rounded-xl shadow-2xl border bg-card text-card-foreground py-3 z-50"
                         >
                           {/* User Info */}
-                          <div className="px-4 py-3 border-b border-slate-600/20">
-                            <p className="font-bold text-lg truncate">
-                              {user?.first_name && user?.last_name 
-                                ? `${user.first_name} ${user.last_name}`
-                                : user?.email || 'User'
-                              }
+                          <CardHeader className="pb-3">
+                            <p className="font-bold text-lg truncate text-foreground">
+                              {getUserDisplayName()}
                             </p>
-                            <p className="text-sm text-slate-400 truncate">
+                            <p className="text-sm text-muted-foreground truncate">
                               {user?.email}
                             </p>
-                          </div>
+                          </CardHeader>
+
+                          <Separator />
 
                           {/* Dropdown Items */}
-                          <button
-                            onClick={handleProfileClick}
-                            className={`w-full flex items-center px-4 py-3 text-lg ${dropdownItemHover} transition-colors duration-200 border-b border-slate-600/10`}
-                          >
-                            <UserCircle className="w-5 h-5 mr-3" />
-                            Profile
-                          </button>
+                          <CardContent className="p-0">
+                            <Button
+                              variant="ghost"
+                              onClick={handleProfileClick}
+                              className="w-full justify-start px-4 py-3 text-lg hover:bg-accent transition-colors duration-200 rounded-none"
+                            >
+                              <UserCircle className="w-5 h-5 mr-3" />
+                              Profile
+                            </Button>
 
-                          <button
-                            onClick={handleHistoryClick}
-                            className={`w-full flex items-center px-4 py-3 text-lg ${dropdownItemHover} transition-colors duration-200 border-b border-slate-600/10`}
-                          >
-                            <History className="w-5 h-5 mr-3" />
-                            History
-                          </button>
+                            <Button
+                              variant="ghost"
+                              onClick={handleHistoryClick}
+                              className="w-full justify-start px-4 py-3 text-lg hover:bg-accent transition-colors duration-200 rounded-none"
+                            >
+                              <History className="w-5 h-5 mr-3" />
+                              History
+                            </Button>
 
-                          <button
-                            onClick={handleLogout}
-                            className={`w-full flex items-center px-4 py-3 text-lg ${
-                              isDark ? "text-red-400 hover:bg-red-900/20" : "text-red-600 hover:bg-red-50"
-                            } transition-colors duration-200`}
-                          >
-                            <LogOut className="w-5 h-5 mr-3" />
-                            Logout
-                          </button>
+                            <Separator />
+
+                            <Button
+                              variant="ghost"
+                              onClick={handleLogout}
+                              className="w-full justify-start px-4 py-3 text-lg text-destructive hover:bg-destructive/10 transition-colors duration-200 rounded-none"
+                            >
+                              <LogOut className="w-5 h-5 mr-3" />
+                              Logout
+                            </Button>
+                          </CardContent>
                         </motion.div>
                       )}
                     </AnimatePresence>
                   </div>
                 ) : (
-                  <a
-                    href="/auth?action=login"
-                    className={`px-8 py-3 rounded-xl ${buttonBg} ${buttonText} font-bold text-lg transition-all duration-300 hover:shadow-xl hover:scale-105 border-2 ${
-                      isDark ? "border-cyan-400" : "border-blue-400"
-                    }`}
-                  >
-                    Login
-                  </a>
+                  <Button asChild size="lg" className="px-8 py-3 rounded-xl font-bold text-lg">
+                    <a href="/auth?action=login">
+                      Login
+                    </a>
+                  </Button>
                 )}
               </>
             )}
 
             {/* Mobile Menu Button */}
             {isMobile && (
-              <button
+              <Button
+                variant="outline"
+                size="icon"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className={`p-3 rounded-xl ${
-                  isDark ? "bg-slate-800 hover:bg-slate-700" : "bg-gray-100 hover:bg-gray-200"
-                } transition-colors duration-300 border ${
-                  isDark ? "border-slate-600" : "border-gray-300"
-                }`}
+                className="p-3 rounded-xl"
               >
-                {isMenuOpen ? (
-                  <X className="w-6 h-6" />
-                ) : (
-                  <Menu className="w-6 h-6" />
-                )}
-              </button>
+                {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </Button>
             )}
           </div>
         </div>
@@ -342,84 +301,63 @@ const Header = () => {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              className={`fixed top-0 right-0 w-4/5 max-w-sm h-full ${mobileMenuBg} shadow-2xl z-50 overflow-y-auto`}
+              className="fixed top-0 right-0 w-4/5 max-w-sm h-full bg-background shadow-2xl z-50 overflow-y-auto"
             >
               <div className="p-6">
                 {/* Mobile Menu Header */}
                 <div className="flex items-center justify-between mb-8">
                   <div className="flex items-center space-x-3">
-                    <div
-                      className={`w-10 h-10 rounded-lg ${
-                        isDark
-                          ? "bg-gradient-to-r from-cyan-500 to-blue-600"
-                          : "bg-gradient-to-r from-blue-500 to-purple-600"
-                      } flex items-center justify-center`}
-                    >
+                    <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 dark:from-cyan-500 dark:to-blue-600 flex items-center justify-center">
                       <span className="text-white font-bold text-sm">I²</span>
                     </div>
-                    <span className={`font-bold text-2xl ${textColor}`}>I2EDC</span>
+                    <span className="font-bold text-2xl text-foreground">I2EDC</span>
                   </div>
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setIsMenuOpen(false)}
-                    className={`p-2 rounded-lg ${
-                      isDark ? "hover:bg-slate-700" : "hover:bg-gray-100"
-                    }`}
+                    className="p-2 rounded-lg"
                   >
                     <X className="w-6 h-6" />
-                  </button>
+                  </Button>
                 </div>
 
                 {/* User Info if Authenticated */}
                 {isAuthenticated && (
-                  <div className="mb-6 p-4 rounded-xl bg-slate-100 dark:bg-slate-800">
-                    <div className="flex items-center space-x-3">
-                      <div
-                        className={`flex items-center justify-center w-14 h-14 rounded-full ${
-                          isDark ? "bg-cyan-500" : "bg-blue-500"
-                        } text-white font-bold text-xl`}
-                      >
-                        {getUserInitial()}
+                  <Card className="mb-6 bg-accent/50">
+                    <CardContent className="p-4">
+                      <div className="flex items-center space-x-3">
+                        <Avatar className="w-14 h-14">
+                          <AvatarFallback className="bg-primary text-primary-foreground text-xl">
+                            {getUserInitial()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-lg truncate text-foreground">
+                            {getUserDisplayName()}
+                          </p>
+                          <p className="text-sm text-muted-foreground truncate">
+                            {user?.email}
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-bold text-lg truncate">
-                          {user?.first_name && user?.last_name 
-                            ? `${user.first_name} ${user.last_name}`
-                            : user?.email || 'User'
-                          }
-                        </p>
-                        <p className="text-sm text-slate-500 dark:text-slate-400 truncate">
-                          {user?.email}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                    </CardContent>
+                  </Card>
                 )}
 
                 {/* Navigation Links */}
                 <div className="space-y-2 mb-8">
-                  {[
-                    { href: "/", label: "Home" },
-                    { href: "/pages/about", label: "About" },
-                    { href: "/pages/services", label: "Services" },
-                    { href: "/pages/events", label: "Events" },
-                    { href: "/pages/prototypes", label: "Prototypes" },
-                    { href: "/pages/contact", label: "Contact" },
-                    ...((user?.is_superuser || user?.is_staff) ? [{ href: "/pages/admin", label: "Admin" }] : [])
-                  ].map((item) => (
-                    <a
+                  {allLinks.map((item) => (
+                    <Button
                       key={item.href}
-                      href={item.href}
-                      onClick={handleLinkClick}
-                      className={`block w-full text-left px-4 py-4 rounded-xl font-bold text-lg transition-all duration-300 ${
-                        isDark 
-                          ? "text-white hover:bg-slate-700 hover:text-cyan-400" 
-                          : "text-gray-900 hover:bg-gray-100 hover:text-blue-600"
-                      } border ${
-                        isDark ? "border-slate-700" : "border-gray-200"
-                      }`}
+                      variant="outline"
+                      asChild
+                      className="w-full justify-start px-4 py-4 rounded-xl font-bold text-lg h-auto"
                     >
-                      {item.label}
-                    </a>
+                      <a href={item.href} onClick={handleLinkClick}>
+                        {item.label}
+                      </a>
+                    </Button>
                   ))}
                 </div>
 
@@ -427,52 +365,33 @@ const Header = () => {
                 <div className="space-y-3">
                   {isAuthenticated ? (
                     <>
-                      <a
-                        href="/pages/user/profile"
-                        onClick={handleLinkClick}
-                        className={`flex items-center justify-center w-full px-4 py-4 rounded-xl font-bold text-lg border-2 ${
-                          isDark
-                            ? "border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-white"
-                            : "border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white"
-                        } transition-colors duration-300`}
-                      >
-                        <UserCircle className="w-5 h-5 mr-3" />
-                        Profile
-                      </a>
-                      <a
-                        href="/pages/user/history"
-                        onClick={handleLinkClick}
-                        className={`flex items-center justify-center w-full px-4 py-4 rounded-xl font-bold text-lg border-2 ${
-                          isDark
-                            ? "border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-white"
-                            : "border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white"
-                        } transition-colors duration-300`}
-                      >
-                        <History className="w-5 h-5 mr-3" />
-                        History
-                      </a>
-                      <button
+                      <Button variant="outline" asChild className="w-full py-4 rounded-xl font-bold text-lg">
+                        <a href="/pages/user/profile" onClick={handleLinkClick}>
+                          <UserCircle className="w-5 h-5 mr-3" />
+                          Profile
+                        </a>
+                      </Button>
+                      <Button variant="outline" asChild className="w-full py-4 rounded-xl font-bold text-lg">
+                        <a href="/pages/user/history" onClick={handleLinkClick}>
+                          <History className="w-5 h-5 mr-3" />
+                          History
+                        </a>
+                      </Button>
+                      <Button 
+                        variant="outline" 
                         onClick={handleLogout}
-                        className={`flex items-center justify-center w-full px-4 py-4 rounded-xl font-bold text-lg border-2 ${
-                          isDark
-                            ? "border-red-400 text-red-400 hover:bg-red-400 hover:text-white"
-                            : "border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
-                        } transition-colors duration-300`}
+                        className="w-full py-4 rounded-xl font-bold text-lg text-destructive border-destructive hover:bg-destructive/10"
                       >
                         <LogOut className="w-5 h-5 mr-3" />
                         Logout
-                      </button>
+                      </Button>
                     </>
                   ) : (
-                    <a
-                      href="/auth?action=login"
-                      onClick={handleLinkClick}
-                      className={`block w-full text-center px-4 py-4 rounded-xl ${buttonBg} ${buttonText} font-bold text-lg transition-all duration-300 hover:shadow-lg border-2 ${
-                        isDark ? "border-cyan-400" : "border-blue-400"
-                      }`}
-                    >
-                      Login
-                    </a>
+                    <Button asChild size="lg" className="w-full py-4 rounded-xl font-bold text-lg">
+                      <a href="/auth?action=login" onClick={handleLinkClick}>
+                        Login
+                      </a>
+                    </Button>
                   )}
                 </div>
               </div>

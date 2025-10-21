@@ -4,28 +4,19 @@ import {
 } from "react-vertical-timeline-component";
 import "react-vertical-timeline-component/style.min.css";
 import { motion } from "framer-motion";
-import { useTheme } from "next-themes";
 import { FaHistory } from "react-icons/fa";
 import { useContent } from "@/context/ContentContext";
 
 const HistorySection = () => {
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
   const { content, loading, error } = useContent();
-
-  const sectionBg = isDark
-    ? "bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900"
-    : "bg-gradient-to-br from-blue-50 via-cyan-50 to-slate-100";
-
-  const titleColor = isDark ? "text-white" : "text-gray-900";
 
   // Loading state
   if (loading && !content.history) {
     return (
-      <section className={`w-full min-h-screen flex items-center justify-center ${sectionBg}`}>
+      <section className="w-full min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-cyan-50 to-slate-100 dark:from-slate-900 dark:via-blue-900 dark:to-slate-900">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto mb-4"></div>
-          <p className={`text-lg ${isDark ? "text-gray-300" : "text-gray-700"}`}>
+          <p className="text-lg text-muted-foreground">
             Loading history...
           </p>
         </div>
@@ -36,16 +27,12 @@ const HistorySection = () => {
   // Error state
   if (error && !content.history) {
     return (
-      <section className={`w-full min-h-screen flex items-center justify-center ${sectionBg}`}>
+      <section className="w-full min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-cyan-50 to-slate-100 dark:from-slate-900 dark:via-blue-900 dark:to-slate-900">
         <div className="text-center">
-          <p className={`text-lg text-red-500 mb-4`}>Error loading history content</p>
+          <p className="text-lg text-destructive mb-4">Error loading history content</p>
           <button 
             onClick={() => window.location.reload()}
-            className={`px-6 py-3 rounded-lg font-semibold ${
-              isDark 
-                ? "bg-white/10 text-white border border-white/30" 
-                : "bg-gray-100 text-gray-800 border border-gray-300"
-            }`}
+            className="px-6 py-3 rounded-lg font-semibold border border-input bg-background hover:bg-accent hover:text-accent-foreground"
           >
             Retry
           </button>
@@ -85,47 +72,45 @@ const HistorySection = () => {
 
   return (
     <section
-      className={`w-full min-h-screen flex items-center justify-center ${sectionBg}`}
+      className="w-full min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-cyan-50 to-slate-100 dark:from-slate-900 dark:via-blue-900 dark:to-slate-900"
     >
       <div className="max-w-5xl w-full px-6 py-12">
         <motion.h2
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className={`text-4xl md:text-5xl font-bold mb-12 text-center ${titleColor}`}
+          className="text-4xl md:text-5xl font-bold mb-12 text-center text-foreground"
         >
           I2EDC{" "}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 to-blue-600">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 to-blue-600 dark:from-cyan-400 dark:to-blue-400">
             History
           </span>
         </motion.h2>
 
-        <VerticalTimeline lineColor={isDark ? "cyan" : "blue"}>
+        <VerticalTimeline lineColor="currentColor" className="text-blue-500 dark:text-cyan-500">
           {historyData.map((milestone:any, index:any) => (
             <VerticalTimelineElement
               key={`${milestone.year}-${index}`}
               date={milestone.year}
               iconStyle={{
-                background: isDark ? "#06b6d4" : "#3b82f6",
+                background: "#3b82f6",
                 color: "#fff",
               }}
               icon={<FaHistory />}
               contentStyle={{
-                background: isDark ? "rgba(255, 255, 255, 0.05)" : "#fff",
-                color: isDark ? "#fff" : "#333",
-                border: isDark
-                  ? "1px solid rgba(255,255,255,0.1)"
-                  : "1px solid #e5e7eb",
+                background: "hsl(var(--card))",
+                color: "hsl(var(--card-foreground))",
+                border: "1px solid hsl(var(--border))",
                 marginBottom: "-70px",
+                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
               }}
               contentArrowStyle={{
-                borderRight: isDark
-                  ? "7px solid rgba(255, 255, 255, 0.1)"
-                  : "7px solid #e5e7eb",
+                borderRight: "7px solid hsl(var(--border))",
               }}
+              dateClassName="text-foreground font-semibold"
             >
-              <h3 className={`text-xl font-bold mb-2`}>{milestone.event}</h3>
-              <p className={`${isDark ? "text-gray-300" : "text-gray-700"}`}>
+              <h3 className="text-xl font-bold mb-2 text-card-foreground">{milestone.event}</h3>
+              <p className="text-muted-foreground">
                 {milestone.description}
               </p>
             </VerticalTimelineElement>

@@ -1,56 +1,150 @@
 {
   "hero": {
-    "title": ["About", "I2EDC"],
-    "subtitle": "Fostering innovation and entrepreneurship through cutting-edge resources, mentorship, and a vibrant community of student innovators",
+    "title": [
+      "About",
+      "I2EDC"
+    ],
+    "subtitle": "",
     "cta": {
-      "primary": { "label": "Our Mission", "href": "#mission" },
-      "secondary": { "label": "Meet the Team", "href": "#team" }
+      "primary": {
+        "label": "About us",
+        "href": "#about"
+      },
+      "secondary": {
+        "label": "Our Core Team",
+        "href": "#team"
+      }
     }
   },
-
   "mission": {
-    "heading": "Our Mission",
+    "heading": "About Us",
     "paragraphs": [
-      "At the Institute Innovation Entrepreneurship Development Cell (I2EDC), we're revolutionizing student innovation with state-of-the-art facilities and mentorship that empower students to transform ideas into reality.",
-      "Our mission is to provide accessible innovation resources, foster entrepreneurial thinking, and build a vibrant community where creativity meets execution."
+      "I2EDC (Institute Innovation & Entrepreneurship Development Club) is a student-led community that encourages innovation, creativity, and entrepreneurship on campus. It’s a space where ideas come to life — from brainstorming new concepts to turning them into real projects and startups. Our club helps students explore, experiment, and learn by doing. Whether you’re building a prototype, pitching an idea, or just curious about innovation, I2EDC is the place to start. We believe in learning by creating — from ideas to innovation."
     ],
-    "pillars": [
-      { "title": "Innovation", "desc": "Creating an ecosystem that nurtures groundbreaking ideas", "icon": "🚀", "gradient": ["#3B82F6", "#22D3EE"] },
-      { "title": "Accessibility", "desc": "Making innovation resources available to every student", "icon": "🔓", "gradient": ["#10B981", "#14B8A6"] },
-      { "title": "Community", "desc": "Building a collaborative network of student innovators", "icon": "🤝", "gradient": ["#8B5CF6", "#EC4899"] }
+    "clubs": [
+      {
+        "title": "ProtoSpace & Tinkering Lab",
+        "desc": "A collaborative space for prototyping and tinkering with new ideas.",
+        "image": "https://i.sstatic.net/frlIf.png",
+        "gradient": [
+          "#3B82F6",
+          "#22D3EE"
+        ]
+      },
+      {
+        "title": "E Cell",
+        "desc": "A space for entrepreneurial activities and startup incubation.",
+        "image": "https://i.sstatic.net/frlIf.png",
+        "gradient": [
+          "#3B82F6",
+          "#22D3EE"
+        ]
+      },
+      {
+        "title": "BEC",
+        "desc": "",
+        "image": "",
+        "gradient": [
+          "#3B82F6",
+          "#22D3EE"
+        ]
+      }
     ]
   },
-
-  "values": {
-    "heading": "Our Values",
-    "summary": "These values guide our decisions, shape our culture, and drive us toward our vision of creating the next generation of innovators and entrepreneurs.",
-    "cards": [
-      { "title": "Excellence", "desc": "We pursue technical excellence in every project, from prototyping to execution.", "icon": "⭐", "gradient": ["#F59E0B", "#F97316"] },
-      { "title": "Innovation", "desc": "We challenge conventions and pioneer new approaches to problem-solving.", "icon": "💡", "gradient": ["#3B82F6", "#22D3EE"] },
-      { "title": "Collaboration", "desc": "We believe great achievements are born from teamwork and shared vision.", "icon": "🤝", "gradient": ["#10B981", "#14B8A6"] },
-      { "title": "Integrity", "desc": "We operate with transparency, honesty, and ethical principles.", "icon": "🔒", "gradient": ["#8B5CF6", "#EC4899"] }
-    ]
-  },
-
-  "timeline": {
-    "heading": "Our Journey",
-    "milestones": [
-      { "year": "2018", "event": "I2EDC established with vision for student innovation hub" },
-      { "year": "2019", "event": "Launched Protospace with initial prototyping equipment" },
-      { "year": "2020", "event": "Expanded to include Tinkering Lab and Machine Services" },
-      { "year": "2022", "event": "100+ student projects supported, 10+ startups incubated" },
-      { "year": "2024", "event": "Became premier innovation hub with 500+ active members" }
-    ]
-  },
-
   "leadership": {
-    "heading": "Leadership Team",
-    "summary": "Our leadership team brings together faculty expertise and student passion to create an environment where innovation thrives and entrepreneurial dreams take flight.",
+    "heading": "Core Team",
+    "summary": "",
     "members": [
-      { "name": "Dr. Sarah Johnson", "role": "Faculty Coordinator", "bio": "Professor of Innovation & Entrepreneurship with 10+ years experience in student mentorship." },
-      { "name": "Rajesh Kumar", "role": "Student President", "bio": "Final year Engineering student with multiple successful innovation projects." },
-      { "name": "Priya Sharma", "role": "Technical Head", "bio": "Expert in prototyping technologies and maker space management." },
-      { "name": "Amit Patel", "role": "Operations Manager", "bio": "Manages I2EDC facilities and coordinates innovation workshops." }
+      {
+            "name": "Dr Navneet Kumar",
+            "club": "I2EDC",
+            "role": "PIC",
+            "image": "http://72.60.102.111:8000/media/uploads/dr-navneet.jpeg"
+        },
+        {
+            "name": "Dr Arvind",
+            "club": "I2EDC",
+            "role": "CIO",
+            "image": "http://72.60.102.111:8000/media/uploads/dr-mt-arvind.jpeg"
+        },
+        {
+            "name": "Mohammad Israil",
+            "club": "ProtoSpace",
+            "role": "OIC",
+            "image": ""
+        },
+        {
+            "name": "Namrit Bhardwaj",
+            "club": "Tinkering Lab",
+            "role": "Office Incharge",
+            "image": ""
+        },
+        {
+            "name": "Drish Mahajan",
+            "club": "ProtoSpace",
+            "role": "Manager",
+            "image": "http://72.60.102.111:8000/media/uploads/Drish_TL_manager.jpg"
+        },
+        {
+            "name": "Mitul Kalivarapu",
+            "club": "ProtoSpace",
+            "role": "Co Manager",
+            "image": "http://72.60.102.111:8000/media/uploads/Mitul_TL_comanager.heic"
+        },
+        {
+            "name": "Bhavishya",
+            "club": "Tinkering Lab",
+            "role": "Manager",
+            "image": "http://72.60.102.111:8000/media/uploads/bhavishya.JPG"
+        },
+        {
+            "name": "Sparsh Dubey",
+            "club": "Tinkering Lab",
+            "role": "Co Manager",
+            "image": "http://72.60.102.111:8000/media/uploads/Sparsh_dubey__ps_comanager.jpg"
+        },
+        {
+            "name": "Gaurav Tiwari",
+            "club": "E Cell",
+            "role": "President",
+            "image": "http://72.60.102.111:8000/media/uploads/Gaurav_Tiwari.jpg"
+        },
+        {
+            "name": "Owais Ansar",
+            "club": "E Cell",
+            "role": "Vice-President",
+            "image": "http://72.60.102.111:8000/media/uploads/owias-ecell.jpg"
+        },
+        {
+            "name": "Bhanu Prakash Mobarasa",
+            "club": "BEC",
+            "role": "President",
+            "image": "http://72.60.102.111:8000/media/uploads/bhanu-bec.png"
+        },
+        {
+            "name": "Anjali Thorat",
+            "club": "Tech Team",
+            "role": "Head",
+            "image": "http://72.60.102.111:8000/media/uploads/2024pth0116-anjali_thorat.jpeg"
+        },
+        {
+            "name": "Ujjwal",
+            "club": "Creative Team",
+            "role": "Head",
+            "image": "http://72.60.102.111:8000/media/uploads/ujjwal.JPG"
+        },
+        {
+            "name": "Anmol Negi",
+            "club": "Outreach Team",
+            "role": "Head",
+            "image": "http://72.60.102.111:8000/media/uploads/anmol-outreach.jpeg"
+        },
+        {
+            "name": "Purva",
+            "club": "Outreach Team",
+            "role": "Head",
+            "image": "http://72.60.102.111:8000/media/uploads/purva.jpeg"
+        }
     ]
   }
 }
